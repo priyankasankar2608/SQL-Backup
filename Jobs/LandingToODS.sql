@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [LandingToODS]    Script Date: 5/15/2026 1:18:28 AM ******/
+/****** Object:  Job [LandingToODS]    Script Date: 7/28/2026 12:51:13 AM ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 5/15/2026 1:18:28 AM ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 7/28/2026 12:51:13 AM ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -25,7 +25,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'LandingToODS',
 		@category_name=N'[Uncategorized (Local)]', 
 		@owner_login_name=N'LEWISCO\kavithac', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [LandingToODS]    Script Date: 5/15/2026 1:18:28 AM ******/
+/****** Object:  Step [LandingToODS]    Script Date: 7/28/2026 12:51:13 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'LandingToODS', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -41,7 +41,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'LandingT
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [ParallelRun]    Script Date: 5/15/2026 1:18:28 AM ******/
+/****** Object:  Step [ParallelRun]    Script Date: 7/28/2026 12:51:13 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'ParallelRun', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
@@ -57,9 +57,41 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Parallel
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Delete_test_LATEST]    Script Date: 5/15/2026 1:18:28 AM ******/
+/****** Object:  Step [Delete_test_LATEST]    Script Date: 7/28/2026 12:51:13 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete_test_LATEST', 
 		@step_id=3, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'SSIS', 
+		@command=N'/ISSERVER "\"\SSISDB\LandingToODS\CReference_ODS\RxqScriptTransaction_DLT_LATEST.dtsx\"" /SERVER PPLUSDW /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
+		@database_name=N'master', 
+		@flags=0, 
+		@proxy_name=N'PrimaryPlus'
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [Insert Bzq Script Delivery dates]    Script Date: 7/28/2026 12:51:13 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Insert Bzq Script Delivery dates', 
+		@step_id=4, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'SSIS', 
+		@command=N'/ISSERVER "\"\SSISDB\PPlusLanding\PPlus_Landing\BzqscriptDeliveryDate.dtsx\"" /SERVER PPLUSDW /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
+		@database_name=N'master', 
+		@flags=0, 
+		@proxy_name=N'PrimaryPlus'
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [Update RxqScriptTransaction Pickupdate]    Script Date: 7/28/2026 12:51:13 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Update RxqScriptTransaction Pickupdate', 
+		@step_id=5, 
 		@cmdexec_success_code=0, 
 		@on_success_action=1, 
 		@on_success_step_id=0, 
@@ -68,7 +100,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete_t
 		@retry_attempts=0, 
 		@retry_interval=0, 
 		@os_run_priority=0, @subsystem=N'SSIS', 
-		@command=N'/ISSERVER "\"\SSISDB\LandingToODS\CReference_ODS\RxqScriptTransaction_DLT_LATEST.dtsx\"" /SERVER PPLUSDW /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
+		@command=N'/ISSERVER "\"\SSISDB\PPlusLanding\PPlus_Landing\RxqScriptTransaction_UpdatePickupDate.dtsx\"" /SERVER PPLUSDW /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
 		@database_name=N'master', 
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'

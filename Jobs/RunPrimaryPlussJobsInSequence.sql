@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [RunPrimaryPlussJobsInSequence]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Job [RunPrimaryPlussJobsInSequence]    Script Date: 7/28/2026 12:55:04 AM ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 7/28/2026 12:55:04 AM ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -26,7 +26,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'RunPrimaryPlussJobsInSequenc
 		@owner_login_name=N'LEWISCO\kavithac', 
 		@notify_email_operator_name=N'TestOperator', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [PPGetALLObjectsMaxDate]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [PPGetALLObjectsMaxDate]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'PPGetALLObjectsMaxDate', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -41,7 +41,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'PPGetALL
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [PPRecordCountValidation_Source]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [PPRecordCountValidation_Source]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'PPRecordCountValidation_Source', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
@@ -57,7 +57,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'PPRecord
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [PPlusLanding]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [PPlusLanding]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'PPlusLanding', 
 		@step_id=3, 
 		@cmdexec_success_code=0, 
@@ -72,7 +72,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'PPlusLan
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Capture Log memory]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [Capture Log memory]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Capture Log memory', 
 		@step_id=4, 
 		@cmdexec_success_code=0, 
@@ -92,7 +92,7 @@ FROM sys.dm_db_log_space_usage;',
 		@database_name=N'PP_Landing', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [ClinincalReference]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [ClinincalReference]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'ClinincalReference', 
 		@step_id=5, 
 		@cmdexec_success_code=0, 
@@ -107,7 +107,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Clininca
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Capture Log memory after clinical step]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [Capture Log memory after clinical step]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Capture Log memory after clinical step', 
 		@step_id=6, 
 		@cmdexec_success_code=0, 
@@ -127,7 +127,7 @@ FROM sys.dm_db_log_space_usage;',
 		@database_name=N'PP_Landing', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [LandingToODS]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [LandingToODS]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'LandingToODS', 
 		@step_id=7, 
 		@cmdexec_success_code=0, 
@@ -142,7 +142,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'LandingT
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Capture Log memory after ODS step]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [Capture Log memory after ODS step]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Capture Log memory after ODS step', 
 		@step_id=8, 
 		@cmdexec_success_code=0, 
@@ -162,7 +162,7 @@ FROM sys.dm_db_log_space_usage;',
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Rx365PatientAppendix  Landing to ODS]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [Rx365PatientAppendix  Landing to ODS]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Rx365PatientAppendix  Landing to ODS', 
 		@step_id=9, 
 		@cmdexec_success_code=0, 
@@ -177,7 +177,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Rx365Pat
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Load Rxq Parsed Notes]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [Load Rxq Parsed Notes]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load Rxq Parsed Notes', 
 		@step_id=10, 
 		@cmdexec_success_code=0, 
@@ -193,7 +193,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load Rxq
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [PPLoadRecordCountValidation_ODS]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [PPLoadRecordCountValidation_ODS]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'PPLoadRecordCountValidation_ODS', 
 		@step_id=11, 
 		@cmdexec_success_code=0, 
@@ -208,7 +208,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'PPLoadRe
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqInsurance]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [RxqInsurance]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqInsurance', 
 		@step_id=12, 
 		@cmdexec_success_code=0, 
@@ -223,7 +223,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqInsur
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [PlusPack]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [PlusPack]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'PlusPack', 
 		@step_id=13, 
 		@cmdexec_success_code=0, 
@@ -238,7 +238,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'PlusPack
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [ProductivityAndProfit]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [ProductivityAndProfit]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'ProductivityAndProfit', 
 		@step_id=14, 
 		@cmdexec_success_code=0, 
@@ -253,7 +253,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Producti
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Financial_End_Report]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [Financial_End_Report]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Financial_End_Report', 
 		@step_id=15, 
 		@cmdexec_success_code=0, 
@@ -268,7 +268,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Financia
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqPatient_Delete]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [RxqPatient_Delete]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqPatient_Delete', 
 		@step_id=16, 
 		@cmdexec_success_code=0, 
@@ -284,7 +284,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqPatie
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [MediTracker ETL Process Job]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [MediTracker ETL Process Job]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'MediTracker ETL Process Job', 
 		@step_id=17, 
 		@cmdexec_success_code=0, 
@@ -299,7 +299,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'MediTrac
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [MedAssist Tracker ETL Process Job]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [MedAssist Tracker ETL Process Job]    Script Date: 7/28/2026 12:55:04 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'MedAssist Tracker ETL Process Job', 
 		@step_id=18, 
 		@cmdexec_success_code=0, 
@@ -314,7 +314,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'MedAssis
 		@database_name=N'master', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Rx365 Patient Info]    Script Date: 5/15/2026 1:25:49 AM ******/
+/****** Object:  Step [Rx365 Patient Info]    Script Date: 7/28/2026 12:55:05 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Rx365 Patient Info', 
 		@step_id=19, 
 		@cmdexec_success_code=0, 
@@ -329,9 +329,24 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Rx365 Pa
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Send Success Mail]    Script Date: 5/15/2026 1:25:49 AM ******/
-EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Send Success Mail', 
+/****** Object:  Step [Script_Dashboard_New]    Script Date: 7/28/2026 12:55:05 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Script_Dashboard_New', 
 		@step_id=20, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'TSQL', 
+		@command=N'Exec Script_Dashboard_New', 
+		@database_name=N'PP_ODS', 
+		@flags=0
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [Send Success Mail]    Script Date: 7/28/2026 12:55:05 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Send Success Mail', 
+		@step_id=21, 
 		@cmdexec_success_code=0, 
 		@on_success_action=1, 
 		@on_success_step_id=0, 

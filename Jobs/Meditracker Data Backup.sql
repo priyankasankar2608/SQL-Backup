@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [Meditracker Data Backup]    Script Date: 5/15/2026 1:19:16 AM ******/
+/****** Object:  Job [Meditracker Data Backup]    Script Date: 7/28/2026 12:51:52 AM ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 5/15/2026 1:19:16 AM ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 7/28/2026 12:51:52 AM ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -26,7 +26,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'Meditracker Data Backup',
 		@owner_login_name=N'LEWISCO\saiabhilash', 
 		@notify_email_operator_name=N'TestOperator', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Meditracker Data Backup]    Script Date: 5/15/2026 1:19:16 AM ******/
+/****** Object:  Step [Meditracker Data Backup]    Script Date: 7/28/2026 12:51:52 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Meditracker Data Backup', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -41,7 +41,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Meditrac
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [MedAssist Tracker Backup]    Script Date: 5/15/2026 1:19:16 AM ******/
+/****** Object:  Step [MedAssist Tracker Backup]    Script Date: 7/28/2026 12:51:52 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'MedAssist Tracker Backup', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
@@ -56,7 +56,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'MedAssis
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Sucess Mail]    Script Date: 5/15/2026 1:19:16 AM ******/
+/****** Object:  Step [Sucess Mail]    Script Date: 7/28/2026 12:51:52 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Sucess Mail', 
 		@step_id=3, 
 		@cmdexec_success_code=0, 

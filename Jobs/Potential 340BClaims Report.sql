@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [Potential 340BClaims Report]    Script Date: 5/15/2026 1:20:40 AM ******/
+/****** Object:  Job [Potential 340BClaims Report]    Script Date: 7/28/2026 12:52:31 AM ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 5/15/2026 1:20:40 AM ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 7/28/2026 12:52:31 AM ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -25,7 +25,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'Potential 340BClaims Report'
 		@category_name=N'[Uncategorized (Local)]', 
 		@owner_login_name=N'LEWISCO\saiabhilash', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Check if Liberty job ran for the day]    Script Date: 5/15/2026 1:20:40 AM ******/
+/****** Object:  Step [Check if Liberty job ran for the day]    Script Date: 7/28/2026 12:52:31 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Check if Liberty job ran for the day', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -59,7 +59,7 @@ END',
 		@database_name=N'master', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Run SP for Potential340BClaim]    Script Date: 5/15/2026 1:20:40 AM ******/
+/****** Object:  Step [Run SP for Potential340BClaim]    Script Date: 7/28/2026 12:52:31 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Run SP for Potential340BClaim', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
@@ -89,7 +89,7 @@ Exec Sp_Potential340BClaims @StartDate,@EndDate ',
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Generate Excel Without Notes]    Script Date: 5/15/2026 1:20:40 AM ******/
+/****** Object:  Step [Generate Excel Without Notes]    Script Date: 7/28/2026 12:52:31 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Generate Excel Without Notes', 
 		@step_id=3, 
 		@cmdexec_success_code=0, 
@@ -105,7 +105,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Generate
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Generate Report With Notes and Send to end users]    Script Date: 5/15/2026 1:20:40 AM ******/
+/****** Object:  Step [Generate Report With Notes and Send to end users]    Script Date: 7/28/2026 12:52:31 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Generate Report With Notes and Send to end users', 
 		@step_id=4, 
 		@cmdexec_success_code=0, 

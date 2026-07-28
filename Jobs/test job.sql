@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [test job]    Script Date: 5/15/2026 4:47:14 AM ******/
+/****** Object:  Job [test job]    Script Date: 7/28/2026 12:58:40 AM ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 5/15/2026 4:47:14 AM ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 7/28/2026 12:58:40 AM ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -25,7 +25,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'test job',
 		@category_name=N'[Uncategorized (Local)]', 
 		@owner_login_name=N'LEWISCO\mathiyarasu', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [drugOption]    Script Date: 5/15/2026 4:47:14 AM ******/
+/****** Object:  Step [drugOption]    Script Date: 7/28/2026 12:58:40 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'drugOption', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -41,7 +41,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'drugOpti
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [test step pplusland]    Script Date: 5/15/2026 4:47:14 AM ******/
+/****** Object:  Step [test step pplusland]    Script Date: 7/28/2026 12:58:40 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'test step pplusland', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
@@ -57,7 +57,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'test ste
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rx365test]    Script Date: 5/15/2026 4:47:14 AM ******/
+/****** Object:  Step [rx365test]    Script Date: 7/28/2026 12:58:40 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rx365test', 
 		@step_id=3, 
 		@cmdexec_success_code=0, 

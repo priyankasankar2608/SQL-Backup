@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [SSIS Server Maintenance Job]    Script Date: 5/15/2026 1:29:08 AM ******/
+/****** Object:  Job [SSIS Server Maintenance Job]    Script Date: 7/28/2026 12:56:20 AM ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 5/15/2026 1:29:08 AM ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 7/28/2026 12:56:20 AM ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -25,7 +25,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'SSIS Server Maintenance Job'
 		@category_name=N'[Uncategorized (Local)]', 
 		@owner_login_name=N'##MS_SSISServerCleanupJobLogin##', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [SSIS Server Operation Records Maintenance]    Script Date: 5/15/2026 1:29:08 AM ******/
+/****** Object:  Step [SSIS Server Operation Records Maintenance]    Script Date: 7/28/2026 12:56:20 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'SSIS Server Operation Records Maintenance', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -44,7 +44,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'SSIS Ser
 		@database_name=N'msdb', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [SSIS Server Max Version Per Project Maintenance]    Script Date: 5/15/2026 1:29:08 AM ******/
+/****** Object:  Step [SSIS Server Max Version Per Project Maintenance]    Script Date: 7/28/2026 12:56:20 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'SSIS Server Max Version Per Project Maintenance', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 

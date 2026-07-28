@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [PPlusLanding]    Script Date: 5/15/2026 1:22:14 AM ******/
+/****** Object:  Job [PPlusLanding]    Script Date: 7/28/2026 12:53:19 AM ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 5/15/2026 1:22:14 AM ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 7/28/2026 12:53:19 AM ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -26,7 +26,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'PPlusLanding',
 		@owner_login_name=N'LEWISCO\kavithac', 
 		@notify_email_operator_name=N'TestOperator', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqAuditTracking]    Script Date: 5/15/2026 1:22:14 AM ******/
+/****** Object:  Step [RxqAuditTracking]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqAuditTracking', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -42,7 +42,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqAudit
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqAccountReceivable]    Script Date: 5/15/2026 1:22:14 AM ******/
+/****** Object:  Step [rxqAccountReceivable]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqAccountReceivable', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
@@ -58,7 +58,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqAccou
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqAccountReceivableHistory]    Script Date: 5/15/2026 1:22:14 AM ******/
+/****** Object:  Step [rxqAccountReceivableHistory]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqAccountReceivableHistory', 
 		@step_id=3, 
 		@cmdexec_success_code=0, 
@@ -74,57 +74,9 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqAccou
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqAgency]    Script Date: 5/15/2026 1:22:14 AM ******/
-EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqAgency', 
-		@step_id=4, 
-		@cmdexec_success_code=0, 
-		@on_success_action=3, 
-		@on_success_step_id=0, 
-		@on_fail_action=2, 
-		@on_fail_step_id=0, 
-		@retry_attempts=0, 
-		@retry_interval=0, 
-		@os_run_priority=0, @subsystem=N'SSIS', 
-		@command=N'/ISSERVER "\"\SSISDB\PPlusLanding\PPlus_Landing\rxqAgency.dtsx\"" /SERVER PPLUSDW /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
-		@database_name=N'master', 
-		@flags=0, 
-		@proxy_name=N'PrimaryPlus'
-IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqChangeLogEntry]    Script Date: 5/15/2026 1:22:15 AM ******/
-EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqChangeLogEntry', 
-		@step_id=5, 
-		@cmdexec_success_code=0, 
-		@on_success_action=3, 
-		@on_success_step_id=0, 
-		@on_fail_action=2, 
-		@on_fail_step_id=0, 
-		@retry_attempts=0, 
-		@retry_interval=0, 
-		@os_run_priority=0, @subsystem=N'SSIS', 
-		@command=N'/ISSERVER "\"\SSISDB\PPlusLanding\PPlus_Landing\rxqChangelogentry.dtsx\"" /SERVER PPLUSDW /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
-		@database_name=N'master', 
-		@flags=0, 
-		@proxy_name=N'PrimaryPlus'
-IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqDoctor]    Script Date: 5/15/2026 1:22:15 AM ******/
-EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqDoctor', 
-		@step_id=6, 
-		@cmdexec_success_code=0, 
-		@on_success_action=3, 
-		@on_success_step_id=0, 
-		@on_fail_action=2, 
-		@on_fail_step_id=0, 
-		@retry_attempts=0, 
-		@retry_interval=0, 
-		@os_run_priority=0, @subsystem=N'SSIS', 
-		@command=N'/ISSERVER "\"\SSISDB\PPlusLanding\PPlus_Landing\rxqDoctor.dtsx\"" /SERVER PPLUSDW /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
-		@database_name=N'master', 
-		@flags=0, 
-		@proxy_name=N'PrimaryPlus'
-IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqDrug]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqDrug]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqDrug', 
-		@step_id=7, 
+		@step_id=4, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -138,7 +90,55 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqDrug'
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqDrugCatalog]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqAgency]    Script Date: 7/28/2026 12:53:19 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqAgency', 
+		@step_id=5, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'SSIS', 
+		@command=N'/ISSERVER "\"\SSISDB\PPlusLanding\PPlus_Landing\rxqAgency.dtsx\"" /SERVER PPLUSDW /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
+		@database_name=N'master', 
+		@flags=0, 
+		@proxy_name=N'PrimaryPlus'
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [rxqChangeLogEntry]    Script Date: 7/28/2026 12:53:19 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqChangeLogEntry', 
+		@step_id=6, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'SSIS', 
+		@command=N'/ISSERVER "\"\SSISDB\PPlusLanding\PPlus_Landing\rxqChangelogentry.dtsx\"" /SERVER PPLUSDW /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
+		@database_name=N'master', 
+		@flags=0, 
+		@proxy_name=N'PrimaryPlus'
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [rxqDoctor]    Script Date: 7/28/2026 12:53:19 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqDoctor', 
+		@step_id=7, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'SSIS', 
+		@command=N'/ISSERVER "\"\SSISDB\PPlusLanding\PPlus_Landing\rxqDoctor.dtsx\"" /SERVER PPLUSDW /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
+		@database_name=N'master', 
+		@flags=0, 
+		@proxy_name=N'PrimaryPlus'
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [RxqDrugCatalog]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqDrugCatalog', 
 		@step_id=8, 
 		@cmdexec_success_code=0, 
@@ -154,7 +154,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqDrugC
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqDrugCompoundIngredient]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqDrugCompoundIngredient]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqDrugCompoundIngredient', 
 		@step_id=9, 
 		@cmdexec_success_code=0, 
@@ -170,7 +170,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqDrugC
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqDrugGPICategories]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqDrugGPICategories]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqDrugGPICategories', 
 		@step_id=10, 
 		@cmdexec_success_code=0, 
@@ -186,7 +186,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqDrugG
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqDrugInventory]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqDrugInventory]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqDrugInventory', 
 		@step_id=11, 
 		@cmdexec_success_code=0, 
@@ -202,7 +202,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqDrugI
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqDrugItemNumber]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqDrugItemNumber]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqDrugItemNumber', 
 		@step_id=12, 
 		@cmdexec_success_code=0, 
@@ -218,7 +218,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqDrugI
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqDrugOptions]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqDrugOptions]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqDrugOptions', 
 		@step_id=13, 
 		@cmdexec_success_code=0, 
@@ -234,7 +234,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqDrugO
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqDUR]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqDUR]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqDUR', 
 		@step_id=14, 
 		@cmdexec_success_code=0, 
@@ -250,7 +250,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqDUR',
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqIcd10]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqIcd10]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqIcd10', 
 		@step_id=15, 
 		@cmdexec_success_code=0, 
@@ -266,7 +266,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqIcd10
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqImageControl]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqImageControl]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqImageControl', 
 		@step_id=16, 
 		@cmdexec_success_code=0, 
@@ -282,7 +282,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqImage
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqImmunizationSubmission]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqImmunizationSubmission]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqImmunizationSubmission', 
 		@step_id=17, 
 		@cmdexec_success_code=0, 
@@ -298,7 +298,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqImmun
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqOnlineHistory]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqOnlineHistory]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqOnlineHistory', 
 		@step_id=18, 
 		@cmdexec_success_code=0, 
@@ -314,7 +314,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqOnlin
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqPatient]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqPatient]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqPatient', 
 		@step_id=19, 
 		@cmdexec_success_code=0, 
@@ -330,7 +330,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqPatie
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqPatientAccountReceivable]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqPatientAccountReceivable]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPatientAccountReceivable', 
 		@step_id=20, 
 		@cmdexec_success_code=0, 
@@ -346,7 +346,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPatie
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqPatientAccountReceivableHistory]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqPatientAccountReceivableHistory]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPatientAccountReceivableHistory', 
 		@step_id=21, 
 		@cmdexec_success_code=0, 
@@ -362,7 +362,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPatie
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqPatientAllergies]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqPatientAllergies]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPatientAllergies', 
 		@step_id=22, 
 		@cmdexec_success_code=0, 
@@ -378,7 +378,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPatie
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqPatientDisease]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqPatientDisease]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPatientDisease', 
 		@step_id=23, 
 		@cmdexec_success_code=0, 
@@ -394,7 +394,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPatie
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqPatientMessage]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqPatientMessage]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPatientMessage', 
 		@step_id=24, 
 		@cmdexec_success_code=0, 
@@ -410,7 +410,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPatie
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqPatientMessageScriptTransactions]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqPatientMessageScriptTransactions]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPatientMessageScriptTransactions', 
 		@step_id=25, 
 		@cmdexec_success_code=0, 
@@ -426,7 +426,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPatie
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqPatientThirdParty]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqPatientThirdParty]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPatientThirdParty', 
 		@step_id=26, 
 		@cmdexec_success_code=0, 
@@ -442,7 +442,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPatie
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqPharmacyTransfer]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqPharmacyTransfer]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPharmacyTransfer', 
 		@step_id=27, 
 		@cmdexec_success_code=0, 
@@ -458,7 +458,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqPharm
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqRxAlert]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqRxAlert]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqRxAlert', 
 		@step_id=28, 
 		@cmdexec_success_code=0, 
@@ -474,7 +474,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqRxAle
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqRxAlertCustomSettings]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqRxAlertCustomSettings]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqRxAlertCustomSettings', 
 		@step_id=29, 
 		@cmdexec_success_code=0, 
@@ -490,7 +490,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqRxAle
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqScriptBase]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqScriptBase]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqScriptBase', 
 		@step_id=30, 
 		@cmdexec_success_code=0, 
@@ -506,7 +506,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqScrip
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqScriptTransaction]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqScriptTransaction]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqScriptTransaction', 
 		@step_id=31, 
 		@cmdexec_success_code=0, 
@@ -522,7 +522,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqScrip
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqTransfers]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqTransfers]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqTransfers', 
 		@step_id=32, 
 		@cmdexec_success_code=0, 
@@ -538,7 +538,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqTrans
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqScriptTransactionAudit]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqScriptTransactionAudit]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqScriptTransactionAudit', 
 		@step_id=33, 
 		@cmdexec_success_code=0, 
@@ -554,7 +554,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqScrip
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqUnitDose]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqUnitDose]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqUnitDose', 
 		@step_id=34, 
 		@cmdexec_success_code=0, 
@@ -570,7 +570,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqUnitD
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqUnitDoseIndividual]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqUnitDoseIndividual]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqUnitDoseIndividual', 
 		@step_id=35, 
 		@cmdexec_success_code=0, 
@@ -586,7 +586,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqUnitD
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqVendor]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqVendor]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqVendor', 
 		@step_id=36, 
 		@cmdexec_success_code=0, 
@@ -602,7 +602,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqVendo
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqWorkFlowItem]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqWorkFlowItem]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqWorkFlowItem', 
 		@step_id=37, 
 		@cmdexec_success_code=0, 
@@ -618,7 +618,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqWorkF
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [rxqWorkflowLocation]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [rxqWorkflowLocation]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqWorkflowLocation', 
 		@step_id=38, 
 		@cmdexec_success_code=0, 
@@ -634,7 +634,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'rxqWorkf
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqZCode]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqZCode]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqZCode', 
 		@step_id=39, 
 		@cmdexec_success_code=0, 
@@ -650,7 +650,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqZCode
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqDrugInventoryLogMaster]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqDrugInventoryLogMaster]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqDrugInventoryLogMaster', 
 		@step_id=40, 
 		@cmdexec_success_code=0, 
@@ -666,7 +666,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqDrugI
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqQueue]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqQueue]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqQueue', 
 		@step_id=41, 
 		@cmdexec_success_code=0, 
@@ -682,7 +682,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqQueue
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqScriptPayments]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqScriptPayments]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqScriptPayments', 
 		@step_id=42, 
 		@cmdexec_success_code=0, 
@@ -698,7 +698,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqScrip
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqNotes]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqNotes]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqNotes', 
 		@step_id=43, 
 		@cmdexec_success_code=0, 
@@ -714,7 +714,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqNotes
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqAddress]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqAddress]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqAddress', 
 		@step_id=44, 
 		@cmdexec_success_code=0, 
@@ -730,7 +730,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqAddre
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [RxqPhoneNumber]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [RxqPhoneNumber]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqPhoneNumber', 
 		@step_id=45, 
 		@cmdexec_success_code=0, 
@@ -746,9 +746,25 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqPhone
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Rx365PatientAppendix]    Script Date: 5/15/2026 1:22:15 AM ******/
-EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Rx365PatientAppendix', 
+/****** Object:  Step [RxqUser]    Script Date: 7/28/2026 12:53:19 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'RxqUser', 
 		@step_id=46, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'SSIS', 
+		@command=N'/ISSERVER "\"\SSISDB\PPlusLanding\PPlus_Landing\RxqUser.dtsx\"" /SERVER PPLUSDW /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
+		@database_name=N'master', 
+		@flags=0, 
+		@proxy_name=N'PrimaryPlus'
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [Rx365PatientAppendix]    Script Date: 7/28/2026 12:53:19 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Rx365PatientAppendix', 
+		@step_id=47, 
 		@cmdexec_success_code=0, 
 		@on_success_action=1, 
 		@on_success_step_id=0, 
@@ -762,9 +778,9 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Rx365Pat
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Liberty_ParallelRun]    Script Date: 5/15/2026 1:22:15 AM ******/
+/****** Object:  Step [Liberty_ParallelRun]    Script Date: 7/28/2026 12:53:19 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Liberty_ParallelRun', 
-		@step_id=47, 
+		@step_id=48, 
 		@cmdexec_success_code=0, 
 		@on_success_action=1, 
 		@on_success_step_id=0, 

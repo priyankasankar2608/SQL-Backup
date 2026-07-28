@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [syspolicy_purge_history]    Script Date: 5/15/2026 1:29:37 AM ******/
+/****** Object:  Job [syspolicy_purge_history]    Script Date: 7/28/2026 12:56:36 AM ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 5/15/2026 1:29:37 AM ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 7/28/2026 12:56:36 AM ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -25,7 +25,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'syspolicy_purge_history',
 		@category_name=N'[Uncategorized (Local)]', 
 		@owner_login_name=N'sa', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Verify that automation is enabled.]    Script Date: 5/15/2026 1:29:38 AM ******/
+/****** Object:  Step [Verify that automation is enabled.]    Script Date: 7/28/2026 12:56:37 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Verify that automation is enabled.', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -44,7 +44,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Verify t
 		@database_name=N'master', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Purge history.]    Script Date: 5/15/2026 1:29:38 AM ******/
+/****** Object:  Step [Purge history.]    Script Date: 7/28/2026 12:56:37 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Purge history.', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
@@ -60,7 +60,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Purge hi
 		@database_name=N'master', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Erase Phantom System Health Records.]    Script Date: 5/15/2026 1:29:38 AM ******/
+/****** Object:  Step [Erase Phantom System Health Records.]    Script Date: 7/28/2026 12:56:37 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Erase Phantom System Health Records.', 
 		@step_id=3, 
 		@cmdexec_success_code=0, 

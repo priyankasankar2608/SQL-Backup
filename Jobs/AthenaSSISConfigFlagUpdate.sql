@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [AthenaSSISConfigFlagUpdate]    Script Date: 5/15/2026 1:15:34 AM ******/
+/****** Object:  Job [AthenaSSISConfigFlagUpdate]    Script Date: 7/28/2026 12:49:46 AM ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 5/15/2026 1:15:34 AM ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 7/28/2026 12:49:46 AM ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -26,7 +26,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'AthenaSSISConfigFlagUpdate',
 		@owner_login_name=N'LEWISCO\saiabhilash', 
 		@notify_email_operator_name=N'SQL Job', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [SSIS Flag Update]    Script Date: 5/15/2026 1:15:34 AM ******/
+/****** Object:  Step [SSIS Flag Update]    Script Date: 7/28/2026 12:49:46 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'SSIS Flag Update', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -42,7 +42,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'SSIS Fla
 		@database_name=N'PP_Athena_Landing', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Send Success Mail]    Script Date: 5/15/2026 1:15:34 AM ******/
+/****** Object:  Step [Send Success Mail]    Script Date: 7/28/2026 12:49:46 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Send Success Mail', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
