@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [ESP 340 B Report]    Script Date: 7/28/2026 12:50:43 AM ******/
+/****** Object:  Job [ESP 340 B Report]    Script Date: 11/18/2026 1:53:03 AM ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 7/28/2026 12:50:43 AM ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 11/18/2026 1:53:03 AM ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -17,17 +17,52 @@ DECLARE @jobId BINARY(16)
 EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'ESP 340 B Report', 
 		@enabled=1, 
 		@notify_level_eventlog=0, 
-		@notify_level_email=0, 
+		@notify_level_email=2, 
 		@notify_level_netsend=0, 
 		@notify_level_page=0, 
 		@delete_level=0, 
 		@description=N'No description available.', 
 		@category_name=N'[Uncategorized (Local)]', 
-		@owner_login_name=N'LEWISCO\saiabhilash', @job_id = @jobId OUTPUT
+		@owner_login_name=N'LEWISCO\saiabhilash', 
+		@notify_email_operator_name=N'TestOperator', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Load ESP Weekly Data]    Script Date: 7/28/2026 12:50:43 AM ******/
-EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load ESP Weekly Data', 
+/****** Object:  Step [Check if RunPrimaryPlussJobsInSequence ran successfully]    Script Date: 11/18/2026 1:53:03 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Check if RunPrimaryPlussJobsInSequence ran successfully', 
 		@step_id=1, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'TSQL', 
+		@command=N'DECLARE @job2_name NVARCHAR(128) = N''RunPrimaryPlussJobsInSequence'';
+
+IF EXISTS (
+    SELECT TOP 1 1
+    FROM msdb.dbo.sysjobhistory h
+    INNER JOIN msdb.dbo.sysjobs j ON j.job_id = h.job_id
+    WHERE j.name = @job2_name
+      AND h.step_id = 0
+      AND h.run_status = 1
+      AND CONVERT(DATE, msdb.dbo.agent_datetime(h.run_date, h.run_time)) = CAST(GETDATE() AS DATE)
+    ORDER BY msdb.dbo.agent_datetime(h.run_date, h.run_time) DESC
+)
+BEGIN
+    select 1 
+END
+ELSE
+BEGIN
+  
+    EXEC msdb.dbo.sp_stop_job N''ESP 340 B Report'';
+END', 
+		@database_name=N'msdb', 
+		@flags=0
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [Load ESP Weekly Data]    Script Date: 11/18/2026 1:53:03 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load ESP Weekly Data', 
+		@step_id=2, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -56,9 +91,9 @@ Exec Sp_340B_ESPMFPReport  @StartDate,@EndDate',
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Load Lilly 340B Data]    Script Date: 7/28/2026 12:50:43 AM ******/
+/****** Object:  Step [Load Lilly 340B Data]    Script Date: 11/18/2026 1:53:03 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load Lilly 340B Data', 
-		@step_id=2, 
+		@step_id=3, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -88,9 +123,9 @@ Exec Sp_Lilly340bESPClaimsReport  @StartDate,@EndDate',
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Load Novo Nord 340B data]    Script Date: 7/28/2026 12:50:43 AM ******/
+/****** Object:  Step [Load Novo Nord 340B data]    Script Date: 11/18/2026 1:53:03 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load Novo Nord 340B data', 
-		@step_id=3, 
+		@step_id=4, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -119,9 +154,9 @@ Exec Sp_NovoNord340bESPClaimsReport  @StartDate,@EndDate',
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Load Astra Zeneca 340 B]    Script Date: 7/28/2026 12:50:43 AM ******/
+/****** Object:  Step [Load Astra Zeneca 340 B]    Script Date: 11/18/2026 1:53:03 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load Astra Zeneca 340 B', 
-		@step_id=4, 
+		@step_id=5, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -152,9 +187,9 @@ Exec Sp_AstraZeneca340bESPClaimsReport  @StartDate,@EndDate
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Load BristolMyers 340b data]    Script Date: 7/28/2026 12:50:43 AM ******/
+/****** Object:  Step [Load BristolMyers 340b data]    Script Date: 11/18/2026 1:53:03 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load BristolMyers 340b data', 
-		@step_id=5, 
+		@step_id=6, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -183,9 +218,9 @@ Exec Sp_BristolMyers340bESPClaimsReport  @StartDate,@EndDate  ',
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Load Biogen 340B Data]    Script Date: 7/28/2026 12:50:43 AM ******/
+/****** Object:  Step [Load Biogen 340B Data]    Script Date: 11/18/2026 1:53:03 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load Biogen 340B Data', 
-		@step_id=6, 
+		@step_id=7, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -214,9 +249,9 @@ Exec Sp_BioGen340bESPClaimsReport  @StartDate,@EndDate ',
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Load UCB 340B Data]    Script Date: 7/28/2026 12:50:43 AM ******/
+/****** Object:  Step [Load UCB 340B Data]    Script Date: 11/18/2026 1:53:03 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load UCB 340B Data', 
-		@step_id=7, 
+		@step_id=8, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -245,9 +280,9 @@ Exec Sp_UCB340bESPClaimsReport  @StartDate,@EndDate ',
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Load Amgen 340B Data]    Script Date: 7/28/2026 12:50:43 AM ******/
+/****** Object:  Step [Load Amgen 340B Data]    Script Date: 11/18/2026 1:53:03 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load Amgen 340B Data', 
-		@step_id=8, 
+		@step_id=9, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -277,9 +312,9 @@ Exec Sp_Amgen340bESPClaimsReport  @StartDate,@EndDate
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Load GSK 340B Data]    Script Date: 7/28/2026 12:50:43 AM ******/
+/****** Object:  Step [Load GSK 340B Data]    Script Date: 11/18/2026 1:53:03 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load GSK 340B Data', 
-		@step_id=9, 
+		@step_id=10, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -308,9 +343,9 @@ Exec Sp_GSK340bESPClaimsReport  @StartDate,@EndDate ',
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Load Boehringer 340b ESP Claims Report]    Script Date: 7/28/2026 12:50:43 AM ******/
+/****** Object:  Step [Load Boehringer 340b ESP Claims Report]    Script Date: 11/18/2026 1:53:03 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load Boehringer 340b ESP Claims Report', 
-		@step_id=10, 
+		@step_id=11, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -339,9 +374,9 @@ Exec Sp_Boehringer340bESPClaimsReport  @StartDate,@EndDate ',
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Load Novartis 340b ESP ClaimsReport]    Script Date: 7/28/2026 12:50:43 AM ******/
+/****** Object:  Step [Load Novartis 340b ESP ClaimsReport]    Script Date: 11/18/2026 1:53:03 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load Novartis 340b ESP ClaimsReport', 
-		@step_id=11, 
+		@step_id=12, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -370,9 +405,115 @@ Exec Sp_Novartis340bESPClaimsReport  @StartDate,@EndDate ',
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Send Mail to End Users]    Script Date: 7/28/2026 12:50:43 AM ******/
+/****** Object:  Step [Genentech 340B ESP Report]    Script Date: 11/18/2026 1:53:03 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Genentech 340B ESP Report', 
+		@step_id=13, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'TSQL', 
+		@command=N'DECLARE @StartDate DATE, @EndDate   DATE;      
+      
+-- Get today      
+DECLARE @Today DATE = CAST(GETDATE() AS DATE);      
+      
+-- Find current week''s Monday      
+DECLARE @CurrentWeekMonday DATE =      
+    DATEADD(DAY, -((DATEPART(WEEKDAY, @Today) + 5) % 7), @Today);      
+      
+-- Previous week''s Monday      
+SET @StartDate = DATEADD(DAY, -7, @CurrentWeekMonday);      
+-- Previous week''s Sunday      
+SET @EndDate = DATEADD(DAY, 6, @StartDate);      
+      
+SELECT @StartDate AS StartDate, @EndDate AS EndDate;      
+      
+Exec Sp_Genentech340bESPClaimsReport  @StartDate,@EndDate 
+
+
+', 
+		@database_name=N'PP_ODS', 
+		@flags=0
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [Johnson and Johnson]    Script Date: 11/18/2026 1:53:03 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Johnson and Johnson', 
+		@step_id=14, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'TSQL', 
+		@command=N'DECLARE @StartDate DATE, @EndDate   DATE;            
+-- Get today            
+DECLARE @Today DATE = CAST(GETDATE() AS DATE);            
+-- Find current week''s Monday            
+DECLARE @CurrentWeekMonday DATE =            
+    DATEADD(DAY, -((DATEPART(WEEKDAY, @Today) + 5) % 7), @Today);            
+            
+-- Previous week''s Monday            
+SET @StartDate = DATEADD(DAY, -7, @CurrentWeekMonday);            
+-- Previous week''s Sunday            
+SET @EndDate = DATEADD(DAY, 6, @StartDate);            
+            
+SELECT @StartDate AS StartDate, @EndDate AS EndDate;       
+Exec Sp_Johnson340bESPClaimsReport @StartDate,@EndDate ', 
+		@database_name=N'PP_ODS', 
+		@flags=0
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [Load Merck 340B Esp Report]    Script Date: 11/18/2026 1:53:03 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load Merck 340B Esp Report', 
+		@step_id=15, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'TSQL', 
+		@command=N'DECLARE @StartDate DATE, @EndDate   DATE;            
+-- Get today            
+DECLARE @Today DATE = CAST(GETDATE() AS DATE);            
+-- Find current week''s Monday            
+DECLARE @CurrentWeekMonday DATE =            
+    DATEADD(DAY, -((DATEPART(WEEKDAY, @Today) + 5) % 7), @Today);            
+            
+-- Previous week''s Monday            
+SET @StartDate = DATEADD(DAY, -7, @CurrentWeekMonday);            
+-- Previous week''s Sunday            
+SET @EndDate = DATEADD(DAY, 6, @StartDate);            
+            
+SELECT @StartDate AS StartDate, @EndDate AS EndDate;       
+Exec Sp_Merck340bESPClaimsReport @StartDate,@EndDate', 
+		@database_name=N'PP_ODS', 
+		@flags=0
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [Send Mail to End Users]    Script Date: 11/18/2026 1:53:03 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Send Mail to End Users', 
-		@step_id=12, 
+		@step_id=16, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'SSIS', 
+		@command=N'/ISSERVER "\"\SSISDB\ESP 340B Report\ESP 340B Report\340B ESP Report.dtsx\"" /SERVER PPLUSDW /Par EmailBCC;"\"saiabhilash@primaryplus.net;priyankas@primaryplus.net\"" /Par EmailTo;"\"mustardk@primaryplus.net;BlevinsA@primaryplus.net;gibsong@primaryplus.net\"" /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
+		@database_name=N'master', 
+		@flags=0, 
+		@proxy_name=N'PrimaryPlus'
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [Send Success Mail]    Script Date: 11/18/2026 1:53:03 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Send Success Mail', 
+		@step_id=17, 
 		@cmdexec_success_code=0, 
 		@on_success_action=1, 
 		@on_success_step_id=0, 
@@ -381,7 +522,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Send Mai
 		@retry_attempts=0, 
 		@retry_interval=0, 
 		@os_run_priority=0, @subsystem=N'SSIS', 
-		@command=N'/ISSERVER "\"\SSISDB\ESP 340B Report\ESP 340B Report\340B ESP Report.dtsx\"" /SERVER PPLUSDW /Par EmailBCC;"\"saiabhilash@sightspectrum.com;priyankas@sightspectrum.com\"" /Par EmailTo;"\"mustardk@primaryplus.net;BlevinsA@primaryplus.net;gibsong@primaryplus.net\"" /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
+		@command=N'/ISSERVER "\"\SSISDB\Job Completion SentMailTask\JobDoneUpdate-MAIL\Package.dtsx\"" /SERVER PPLUSDW /Par "\"$Project::EmailSubject\"";"\"ESP 340 B weekly mail chain Job Succeeded\"" /Par "\"$Project::EmailTo\"";"\"saiabhilash@sightspectrum.com;jayashankarp@sightspectrum.com;ramyav@sightspectrum.com\"" /Par "\"$Project::JobName\"";"\"ESP 340 B weekly mail chain\"" /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
 		@database_name=N'master', 
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
@@ -396,7 +537,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobschedule @job_id=@jobId, @name=N'Weekly 7.
 		@freq_subday_interval=0, 
 		@freq_relative_interval=0, 
 		@freq_recurrence_factor=1, 
-		@active_start_date=20260303, 
+		@active_start_date=20260915, 
 		@active_end_date=99991231, 
 		@active_start_time=73000, 
 		@active_end_time=235959, 

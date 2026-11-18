@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [LandingToODS]    Script Date: 7/28/2026 12:51:13 AM ******/
+/****** Object:  Job [LandingToODS]    Script Date: 11/18/2026 1:53:35 AM ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 7/28/2026 12:51:13 AM ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 11/18/2026 1:53:35 AM ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -25,7 +25,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'LandingToODS',
 		@category_name=N'[Uncategorized (Local)]', 
 		@owner_login_name=N'LEWISCO\kavithac', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [LandingToODS]    Script Date: 7/28/2026 12:51:13 AM ******/
+/****** Object:  Step [LandingToODS]    Script Date: 11/18/2026 1:53:36 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'LandingToODS', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -41,7 +41,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'LandingT
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [ParallelRun]    Script Date: 7/28/2026 12:51:13 AM ******/
+/****** Object:  Step [ParallelRun]    Script Date: 11/18/2026 1:53:36 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'ParallelRun', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
@@ -57,7 +57,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Parallel
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Delete_test_LATEST]    Script Date: 7/28/2026 12:51:13 AM ******/
+/****** Object:  Step [Delete_test_LATEST]    Script Date: 11/18/2026 1:53:36 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete_test_LATEST', 
 		@step_id=3, 
 		@cmdexec_success_code=0, 
@@ -73,7 +73,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete_t
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Insert Bzq Script Delivery dates]    Script Date: 7/28/2026 12:51:13 AM ******/
+/****** Object:  Step [Insert Bzq Script Delivery dates]    Script Date: 11/18/2026 1:53:36 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Insert Bzq Script Delivery dates', 
 		@step_id=4, 
 		@cmdexec_success_code=0, 
@@ -89,7 +89,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Insert B
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Update RxqScriptTransaction Pickupdate]    Script Date: 7/28/2026 12:51:13 AM ******/
+/****** Object:  Step [Update RxqScriptTransaction Pickupdate]    Script Date: 11/18/2026 1:53:36 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Update RxqScriptTransaction Pickupdate', 
 		@step_id=5, 
 		@cmdexec_success_code=0, 

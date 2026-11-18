@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [RunSnowFlakeJobsInSequence_Latest]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  Job [RunSnowFlakeJobsInSequence_Latest]    Script Date: 11/18/2026 1:59:22 AM ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 11/18/2026 1:59:22 AM ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -26,7 +26,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'RunSnowFlakeJobsInSequence_L
 		@owner_login_name=N'LEWISCO\kavithac', 
 		@notify_email_operator_name=N'TestOperator', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Call Check45ServerStatus job]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  Step [Call Check45ServerStatus job]    Script Date: 11/18/2026 1:59:22 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Call Check45ServerStatus job', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -41,7 +41,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Call Che
 		@database_name=N'master', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Wait Step]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  Step [Wait Step]    Script Date: 11/18/2026 1:59:22 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Wait Step', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
@@ -56,7 +56,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Wait Ste
 		@database_name=N'master', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Run Sp to check 45 Server Status Job]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  Step [Run Sp to check 45 Server Status Job]    Script Date: 11/18/2026 1:59:22 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Run Sp to check 45 Server Status Job', 
 		@step_id=3, 
 		@cmdexec_success_code=0, 
@@ -71,7 +71,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Run Sp t
 		@database_name=N'PP_Athena_Landing', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [GetSnowFlakeMaxDateODS]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  Step [GetSnowFlakeMaxDateODS]    Script Date: 11/18/2026 1:59:22 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'GetSnowFlakeMaxDateODS', 
 		@step_id=4, 
 		@cmdexec_success_code=0, 
@@ -87,7 +87,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'GetSnowF
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [SnowFlakeToLanding For Report Tables]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  Step [SnowFlakeToLanding For Report Tables]    Script Date: 11/18/2026 1:59:22 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'SnowFlakeToLanding For Report Tables', 
 		@step_id=5, 
 		@cmdexec_success_code=0, 
@@ -98,12 +98,12 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'SnowFlak
 		@retry_attempts=0, 
 		@retry_interval=3, 
 		@os_run_priority=0, @subsystem=N'SSIS', 
-		@command=N'/ISSERVER "\"\SSISDB\LandingToODS\CReference_ODS\pkgLoadSF_Landing_ReportTbls_Dyn_ST_New.dtsx\"" /SERVER PPLUSDW /X86 /Par password;"\"D@tah3b2033c\"" /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
+		@command=N'/ISSERVER "\"\SSISDB\LandingToODS\CReference_ODS\pkgLoadSF_Landing_ReportTbls_Dyn_ST_New.dtsx\"" /SERVER PPLUSDW /X86 /Par password;"\"D@tah3b2035c\"" /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
 		@database_name=N'master', 
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [LandingToODS For Report Tables]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  Step [LandingToODS For Report Tables]    Script Date: 11/18/2026 1:59:22 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'LandingToODS For Report Tables', 
 		@step_id=6, 
 		@cmdexec_success_code=0, 
@@ -119,7 +119,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'LandingT
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [AthenaReportsSPRefersh]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  Step [AthenaReportsSPRefersh]    Script Date: 11/18/2026 1:59:22 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'AthenaReportsSPRefersh', 
 		@step_id=7, 
 		@cmdexec_success_code=0, 
@@ -134,9 +134,25 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'AthenaRe
 		@database_name=N'PP_Athena_Landing', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [SnowFlakeToLanding for Other Tables]    Script Date: 7/28/2026 12:58:24 AM ******/
-EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'SnowFlakeToLanding for Other Tables', 
+/****** Object:  Step [Load Text Macro Responses for Family Planning Visits]    Script Date: 11/18/2026 1:59:22 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Load Text Macro Responses for Family Planning Visits', 
 		@step_id=8, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'SSIS', 
+		@command=N'/ISSERVER "\"\SSISDB\FPAR Report\FPARReport\ParseSocialHistoryQA_Latest_Notes.dtsx\"" /SERVER PPLUSDW /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
+		@database_name=N'master', 
+		@flags=0, 
+		@proxy_name=N'PrimaryPlus'
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [SnowFlakeToLanding for Other Tables]    Script Date: 11/18/2026 1:59:22 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'SnowFlakeToLanding for Other Tables', 
+		@step_id=9, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -145,14 +161,14 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'SnowFlak
 		@retry_attempts=3, 
 		@retry_interval=0, 
 		@os_run_priority=0, @subsystem=N'SSIS', 
-		@command=N'/ISSERVER "\"\SSISDB\LandingToODS\CReference_ODS\pkgLoadSF_Landing_OtherTbls_Dyn_ST_New.dtsx\"" /SERVER PPLUSDW /X86 /Par password;"\"D@tah3b2033c\"" /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
+		@command=N'/ISSERVER "\"\SSISDB\LandingToODS\CReference_ODS\pkgLoadSF_Landing_OtherTbls_Dyn_ST_New.dtsx\"" /SERVER PPLUSDW /X86 /Par password;"\"D@tah3b2035c\"" /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
 		@database_name=N'master', 
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Capture Log memory]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  Step [Capture Log memory]    Script Date: 11/18/2026 1:59:22 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Capture Log memory', 
-		@step_id=9, 
+		@step_id=10, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -170,9 +186,9 @@ FROM sys.dm_db_log_space_usage;',
 		@database_name=N'PP_Athena_Landing', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Delete Duplicates in Athena Landing]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  Step [Delete Duplicates in Athena Landing]    Script Date: 11/18/2026 1:59:22 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete Duplicates in Athena Landing', 
-		@step_id=10, 
+		@step_id=11, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -185,15 +201,15 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete D
 		@database_name=N'PP_Athena_Landing', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [LandingToODS for Other Tables]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  Step [LandingToODS for Other Tables]    Script Date: 11/18/2026 1:59:22 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'LandingToODS for Other Tables', 
-		@step_id=11, 
+		@step_id=12, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
 		@on_fail_action=2, 
 		@on_fail_step_id=0, 
-		@retry_attempts=3, 
+		@retry_attempts=0, 
 		@retry_interval=0, 
 		@os_run_priority=0, @subsystem=N'SSIS', 
 		@command=N'/ISSERVER "\"\SSISDB\LandingToODS\CReference_ODS\pkgLoadSF_Landing_ODS_OthTbls_New.dtsx\"" /SERVER PPLUSDW /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
@@ -201,9 +217,9 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'LandingT
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Capture ODS log memory]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  Step [Capture ODS log memory]    Script Date: 11/18/2026 1:59:22 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Capture ODS log memory', 
-		@step_id=12, 
+		@step_id=13, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -221,9 +237,9 @@ FROM sys.dm_db_log_space_usage;',
 		@database_name=N'PP_Athena_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Erabatch Landing to ODS SP]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  Step [Erabatch Landing to ODS SP]    Script Date: 11/18/2026 1:59:22 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Erabatch Landing to ODS SP', 
-		@step_id=13, 
+		@step_id=14, 
 		@cmdexec_success_code=0, 
 		@on_success_action=3, 
 		@on_success_step_id=0, 
@@ -236,9 +252,9 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Erabatch
 		@database_name=N'PP_Athena_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Send Success Mail]    Script Date: 7/28/2026 12:58:24 AM ******/
+/****** Object:  Step [Send Success Mail]    Script Date: 11/18/2026 1:59:22 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Send Success Mail', 
-		@step_id=14, 
+		@step_id=15, 
 		@cmdexec_success_code=0, 
 		@on_success_action=1, 
 		@on_success_step_id=0, 

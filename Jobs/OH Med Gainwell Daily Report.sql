@@ -1,11 +1,11 @@
 USE [msdb]
 GO
 
-/****** Object:  Job [OH Med Gainwell Daily Report]    Script Date: 7/28/2026 12:52:17 AM ******/
+/****** Object:  Job [OH Med Gainwell Daily Report]    Script Date: 11/18/2026 1:54:59 AM ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 7/28/2026 12:52:17 AM ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 11/18/2026 1:54:59 AM ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -17,15 +17,16 @@ DECLARE @jobId BINARY(16)
 EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'OH Med Gainwell Daily Report', 
 		@enabled=1, 
 		@notify_level_eventlog=0, 
-		@notify_level_email=0, 
+		@notify_level_email=2, 
 		@notify_level_netsend=0, 
 		@notify_level_page=0, 
 		@delete_level=0, 
 		@description=N'No description available.', 
 		@category_name=N'[Uncategorized (Local)]', 
-		@owner_login_name=N'LEWISCO\saiabhilash', @job_id = @jobId OUTPUT
+		@owner_login_name=N'LEWISCO\saiabhilash', 
+		@notify_email_operator_name=N'TestOperator', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Check if Job:RunPrimaryPlussJobsInSequence ran succesfully]    Script Date: 7/28/2026 12:52:17 AM ******/
+/****** Object:  Step [Check if Job:RunPrimaryPlussJobsInSequence ran succesfully]    Script Date: 11/18/2026 1:54:59 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Check if Job:RunPrimaryPlussJobsInSequence ran succesfully', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -60,7 +61,7 @@ END
 		@database_name=N'msdb', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Run Daily OHMedGainwellClaims SP]    Script Date: 7/28/2026 12:52:17 AM ******/
+/****** Object:  Step [Run Daily OHMedGainwellClaims SP]    Script Date: 11/18/2026 1:54:59 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Run Daily OHMedGainwellClaims SP', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
@@ -90,9 +91,25 @@ Exec Sp_DailyOHMedGainwellClaims @StartDate,@EndDate  ',
 		@database_name=N'PP_ODS', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Send the Report to Users]    Script Date: 7/28/2026 12:52:17 AM ******/
+/****** Object:  Step [Send the Report to Users]    Script Date: 11/18/2026 1:54:59 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Send the Report to Users', 
 		@step_id=3, 
+		@cmdexec_success_code=0, 
+		@on_success_action=3, 
+		@on_success_step_id=0, 
+		@on_fail_action=2, 
+		@on_fail_step_id=0, 
+		@retry_attempts=0, 
+		@retry_interval=0, 
+		@os_run_priority=0, @subsystem=N'SSIS', 
+		@command=N'/ISSERVER "\"\SSISDB\OH MED Gainwell Report\GainwellReport\GainwellReport.dtsx\"" /SERVER PPLUSDW /Par EmailBCC;"\"saiabhilash@primaryplus.net;priyankas@primaryplus.net\"" /Par EmailTo;"\"mustardk@primaryplus.net;staffordm@primaryplus.net;blevinsa@primaryplus.net\"" /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
+		@database_name=N'master', 
+		@flags=0, 
+		@proxy_name=N'PrimaryPlus'
+IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
+/****** Object:  Step [Send Success Mail]    Script Date: 11/18/2026 1:54:59 AM ******/
+EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Send Success Mail', 
+		@step_id=4, 
 		@cmdexec_success_code=0, 
 		@on_success_action=1, 
 		@on_success_step_id=0, 
@@ -101,7 +118,7 @@ EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Send the
 		@retry_attempts=0, 
 		@retry_interval=0, 
 		@os_run_priority=0, @subsystem=N'SSIS', 
-		@command=N'/ISSERVER "\"\SSISDB\OH MED Gainwell Report\GainwellReport\GainwellReport.dtsx\"" /SERVER PPLUSDW /Par EmailBCC;"\"saiabhilash@sightspectrum.com;priyankas@sightspectrum.com\"" /Par EmailTo;"\"mustardk@primaryplus.net;staffordm@primaryplus.net;blevinsa@primaryplus.net\"" /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
+		@command=N'/ISSERVER "\"\SSISDB\Job Completion SentMailTask\JobDoneUpdate-MAIL\Package.dtsx\"" /SERVER PPLUSDW /Par "\"$Project::EmailSubject\"";"\"OH Med GainWell Daily Report Job Succeeded\"" /Par "\"$Project::EmailTo\"";"\"saiabhilash@sightspectrum.com;jayashankarp@sightspectrum.com;ramyav@sightspectrum.com\"" /Par "\"$Project::JobName\"";"\"OH Med GainWell Daily Report\"" /Par "\"$ServerOption::LOGGING_LEVEL(Int16)\"";1 /Par "\"$ServerOption::SYNCHRONIZED(Boolean)\"";True /CALLERINFO SQLAGENT /REPORTING E', 
 		@database_name=N'master', 
 		@flags=0, 
 		@proxy_name=N'PrimaryPlus'

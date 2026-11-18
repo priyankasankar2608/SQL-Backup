@@ -1,11 +1,11 @@
-﻿USE [msdb]
+USE [msdb]
 GO
 
-/****** Object:  Job [Snowflake Password change Reminder]    Script Date: 7/28/2026 12:55:50 AM ******/
+/****** Object:  Job [Snowflake Password change Reminder]    Script Date: 11/18/2026 2:00:16 AM ******/
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
 SELECT @ReturnCode = 0
-/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 7/28/2026 12:55:50 AM ******/
+/****** Object:  JobCategory [[Uncategorized (Local)]]    Script Date: 11/18/2026 2:00:16 AM ******/
 IF NOT EXISTS (SELECT name FROM msdb.dbo.syscategories WHERE name=N'[Uncategorized (Local)]' AND category_class=1)
 BEGIN
 EXEC @ReturnCode = msdb.dbo.sp_add_category @class=N'JOB', @type=N'LOCAL', @name=N'[Uncategorized (Local)]'
@@ -25,7 +25,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=N'Snowflake Password change Re
 		@category_name=N'[Uncategorized (Local)]', 
 		@owner_login_name=N'LEWISCO\saiabhilash', @job_id = @jobId OUTPUT
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Check whether password date expired]    Script Date: 7/28/2026 12:55:50 AM ******/
+/****** Object:  Step [Check whether password date expired]    Script Date: 11/18/2026 2:00:16 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Check whether password date expired', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -45,7 +45,7 @@ FROM dbo.SnowflakePwdChangeTracker;
 -- Next due date = LastChangedDate + 2 months
 SET @NextDueDate = DATEADD(MONTH, 2, @LastChangedDate);
 
--- Adjust if weekend (Saturday or Sunday → shift to Friday)
+-- Adjust if weekend (Saturday or Sunday ? shift to Friday)
 IF DATENAME(WEEKDAY, @NextDueDate) = ''Saturday''
     SET @ReminderDate = DATEADD(DAY, -1, @NextDueDate);
 ELSE IF DATENAME(WEEKDAY, @NextDueDate) = ''Sunday''
@@ -53,7 +53,7 @@ ELSE IF DATENAME(WEEKDAY, @NextDueDate) = ''Sunday''
 ELSE
     SET @ReminderDate = @NextDueDate;
 
--- If today = reminder date → fail and run reminder
+-- If today = reminder date ? fail and run reminder
 -- Else exit with success and no action needed
 ---IF CAST(GETDATE() AS DATE) = ''2025-08-19''
 IF CAST(GETDATE() AS DATE) =  @ReminderDate
@@ -63,7 +63,7 @@ ELSE
 		@database_name=N'PP_Athena_Landing', 
 		@flags=0
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
-/****** Object:  Step [Send Reminder Mail]    Script Date: 7/28/2026 12:55:50 AM ******/
+/****** Object:  Step [Send Reminder Mail]    Script Date: 11/18/2026 2:00:16 AM ******/
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Send Reminder Mail', 
 		@step_id=2, 
 		@cmdexec_success_code=0, 
